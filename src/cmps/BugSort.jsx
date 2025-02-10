@@ -18,6 +18,7 @@ export function BugSort({ sortBy, onSetSortBy }) {
 			<option value="">Sort by</option>
 			<option value="severity">severity</option>
 			<option value="title">title</option>
+			<option value="createdAt">createdAt</option>
 		</select>
 
 		<select name="sortDir" onChange={handleSortChange} value={sortBy.sortDir}>

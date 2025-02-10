@@ -9,6 +9,7 @@ export function BugFilter({ filterBy, onSetFilterBy }) {
 	}, [filterByToEdit])
 
 	function handleFilterChange(ev) {
+		debugger
 		let { name: field, value, type } = ev.target
 		if (type === 'number') value = +value
 		setFilterByToEdit({ ...filterByToEdit, [field]: value })
@@ -37,6 +38,17 @@ export function BugFilter({ filterBy, onSetFilterBy }) {
 				onChange={handleFilterChange}
 			/>
 		</label>
+
+		<label>
+                Search by labels
+                <input
+                    placeholder="Search for labels"
+                    type="text"
+                    name="labels"
+                    value={filterByToEdit.labels}
+                    onChange={handleFilterChange}
+                />
+            </label>
 
 	</section>
 }
