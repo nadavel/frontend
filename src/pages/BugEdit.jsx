@@ -53,10 +53,11 @@ export function BugEdit() {
                     Description:
                     <input type="text" name="desc" value={bug.desc} onChange={handleChange} />
                 </label>
+                {bug.labels && bug.labels.length && 
                 <label>
                     Labels (comma separated):
                     <input type="text" name="labels" value={bug.labels.join(', ')} onChange={handleLabelsChange} />
-                </label>
+                </label>}
                 <button type="submit">Save</button>
             </form>
         </section>
