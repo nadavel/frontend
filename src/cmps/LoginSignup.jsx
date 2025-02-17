@@ -1,47 +1,101 @@
-import { showErrorMsg, showSuccessMsg } from "../services/event-bus.service.js"
-import { userService } from "../services/user.service.js"
-import { LoginForm } from "./LoginForm.jsx"
-import { useEffect, useState } from "react"
+import { useState, useEffect } from 'react'
+import { userService } from '../services/user.service.js'
 
+export function LoginSignup({ onSignup, onLogin }) {
+    const [users, setUsers] = useState([])
+    const [credentials, setCredentials] = useState(userService.getEmptyUser())
+    const [isSignup, setIsSignup] = useState(false)
 
-export function LoginSignup({ setUser }) {
+    useEffect(() => {
+        loadUsers()
+    }, [])
 
-    const [isSignup, setIsSignUp] = useState(false)
-
-    function onLogin(credentials) {
-        isSignup ? signup(credentials) : login(credentials)
+    async function loadUsers() {
+        try {
+            const users = await userService.query()
+            setUsers(users)
+        } catch (err) {
+            console.log('Had issues loading users', err);
+        }
     }
 
-    function login(credentials) {
-        userService.login(credentials)
-            .then((user) => {
-                setUser(user)
-            })
-            .then(() => { showSuccessMsg('Logged in successfully') })
-            .catch((err) => { showErrorMsg('Oops try again') })
+    function clearState() {
+        setCredentials(userService.getEmptyUser())
+        setIsSignup(false)
     }
 
-    function signup(credentials) {
-        userService.signup(credentials)
-            .then(setUser)
-            .then(() => { showSuccessMsg('Signed in successfully') })
-            .catch((err) => { showErrorMsg('Oops try again') })
+    function handleChange(ev) {
+        const field = ev.target.name
+        const value = ev.target.value
+        setCredentials({ ...credentials, [field]: value })
     }
 
+    async function onSubmitForm(ev = null) {
+        if (ev) ev.preventDefault()
+        if (isSignup) {
+            if (!credentials.username || !credentials.password || !credentials.fullname) return
+            await onSignup(credentials)
+        } else {
+            if (!credentials.username) return
+            await onLogin(credentials)
+        }
+        clearState()
+
+    }
+
+    function onToggleSignup() {
+        setIsSignup(isSignup => !isSignup)
+    }
+
+    function onUploaded(imgUrl) {
+        setCredentials(prevCredentials => ({ ...prevCredentials, imgUrl }))
+    }
     return (
         <div className="login-page">
-            <LoginForm
-                onLogin={onLogin}
-                isSignup={isSignup}
-            />
-            <div className="btns">
-                <a href="#" onClick={() => setIsSignUp(!isSignup)}>
-                    {isSignup ?
-                        'Already a member? Login' :
-                        'New user? Signup here'
-                    }
-                </a >
+            <p>
+                <button className="btn-link" onClick={onToggleSignup}>{!isSignup ? 'Signup' : 'Login'}</button>
+            </p>
+            {!isSignup && <form className="login-form" onSubmit={onSubmitForm}>
+                <select
+                    name="username"
+                    value={credentials.username}
+                    onChange={handleChange}
+                >
+                    <option value="">Select User</option>
+                    {users.map(user => <option key={user._id} value={user.username}>{user.fullname}</option>)}
+                </select>
+                
+                <button>Login!</button>
+            </form>}
+            <div className="signup-section">
+                {isSignup && <form className="signup-form" onSubmit={onSubmitForm}>
+                    <input
+                        type="text"
+                        name="fullname"
+                        value={credentials.fullname}
+                        placeholder="Fullname"
+                        onChange={handleChange}
+                        required
+                    />
+                    <input
+                        type="text"
+                        name="username"
+                        value={credentials.username}
+                        placeholder="Username"
+                        onChange={handleChange}
+                        required
+                    />
+                    <input
+                        type="password"
+                        name="password"
+                        value={credentials.password}
+                        placeholder="Password"
+                        onChange={handleChange}
+                        required
+                    />
+                    <button >Signup!</button>
+                </form>}
             </div>
-        </div >
+        </div>
     )
 }

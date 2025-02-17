@@ -4,7 +4,7 @@ import { useEffect, useState } from "react"
 
 export function LoginForm({ onLogin, isSignup }) {
 
-    const [credentials, setCredentials] = useState(userService.getEmptyCredentials())
+    const [credentials, setCredentials] = useState(userService.getEmptyUser())
 
     function handleChange({ target }) {
         const { name: field, value } = target
